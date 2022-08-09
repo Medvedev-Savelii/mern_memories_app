@@ -79,13 +79,17 @@ export const likePost = async (req, res) => {
 
   const post = await PostMessage.findById(id);
 
-  const updatedPost = await PostMessage.findByIdAndUpdate(
-    id,
-    { likeCount: post.likeCount + 1 },
-    { new: true }
-  );
+  const index = post.likes.findIndex((id) => id === String(req.userId));
 
-  res.json(updatedPost);
+  if (index === -1) {
+    post.likes.push(req.userId);
+  } else {
+    post.likes = post.likes.filter((id) => id !== String(req.userId));
+  }
+  const updatedPost = await PostMessage.findByIdAndUpdate(id, post, {
+    new: true,
+  });
+  res.status(200).json(updatedPost);
 };
 
 export default {
